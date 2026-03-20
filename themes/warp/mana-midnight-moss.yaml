@@ -1,0 +1,24 @@
+name: Mana Midnight Moss
+accent: '#34d399'
+foreground: '#ecfdf5'
+background: '#08110f'
+details: darker
+terminal_colors:
+  normal:
+    black: '#0f1f1b'
+    red: '#fb7185'
+    green: '#34d399'
+    yellow: '#fbbf24'
+    blue: '#38bdf8'
+    magenta: '#c084fc'
+    cyan: '#2dd4bf'
+    white: '#d1fae5'
+  bright:
+    black: '#4b5563'
+    red: '#fda4af'
+    green: '#6ee7b7'
+    yellow: '#fde68a'
+    blue: '#7dd3fc'
+    magenta: '#d8b4fe'
+    cyan: '#99f6e4'
+    white: '#f0fdf4'
