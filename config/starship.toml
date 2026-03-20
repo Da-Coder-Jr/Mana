@@ -1,0 +1,79 @@
+add_newline = true
+command_timeout = 1200
+format = """
+$os$hostname$directory$git_branch$git_status$fill$nodejs$python$rust$golang$cmd_duration
+$character
+"""
+
+palette = "mana_cozy"
+
+[palettes.mana_cozy]
+rose = "#f5b8ab"
+peach = "#f2cdcd"
+gold = "#f9e2af"
+moss = "#a6e3a1"
+aqua = "#94e2d5"
+sky = "#89dceb"
+lavender = "#cba6f7"
+text = "#f5f5f4"
+muted = "#a8a29e"
+base = "#1c1917"
+surface = "#292524"
+
+[os]
+disabled = false
+style = "fg:gold"
+format = "[$symbol](fg:gold) "
+
+[hostname]
+ssh_only = false
+style = "fg:peach"
+format = "[$hostname](fg:peach) "
+
+[directory]
+style = "fg:text bg:surface bold"
+format = "[](fg:surface)[ $path ]($style)[](fg:surface) "
+truncate_to_repo = false
+truncation_length = 3
+
+[git_branch]
+symbol = " "
+style = "fg:moss"
+format = "[$symbol$branch](fg:moss) "
+
+[git_status]
+style = "fg:rose"
+format = "([\[$all_status$ahead_behind\]]($style) )"
+
+[fill]
+symbol = " "
+
+[nodejs]
+symbol = " "
+style = "fg:sky"
+format = "[$symbol$version](fg:sky) "
+
+[python]
+symbol = " "
+style = "fg:gold"
+format = "[$symbol$version](fg:gold) "
+
+[rust]
+symbol = " "
+style = "fg:peach"
+format = "[$symbol$version](fg:peach) "
+
+[golang]
+symbol = " "
+style = "fg:aqua"
+format = "[$symbol$version](fg:aqua) "
+
+[cmd_duration]
+min_time = 500
+style = "fg:muted"
+format = "[$duration](fg:muted)"
+
+[character]
+success_symbol = "[❯](fg:moss bold)"
+error_symbol = "[❯](fg:rose bold)"
+vicmd_symbol = "[❮](fg:lavender bold)"
