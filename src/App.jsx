@@ -1,301 +1,304 @@
 import { useMemo, useState } from 'react';
-import { ManaLogo } from './components/ManaLogo';
 
-const features = [
+const rooms = [
   {
-    title: 'Free chat endpoint',
-    description: 'Call /chat with a single message payload and receive a clean JSON response without exposing your NVIDIA API key.',
+    id: 'hearth',
+    name: '~/hearth',
+    title: 'Hearth Session',
+    mood: 'Warm amber glow · rain against the window',
+    accent: 'text-amber-200',
+    border: 'border-amber-300/30',
+    prompt: 'brew --focus',
+    note: 'A slow little workspace for writing, planning, and keeping the day gentle.',
+    tasks: [
+      { label: 'Steep tea for 4 minutes', done: true },
+      { label: 'Draft tiny roadmap', done: true },
+      { label: 'Queue lo-fi cassette', done: false },
+    ],
+    log: [
+      '[08:14] Booted hearth daemon and warmed the terminal.',
+      '[08:18] Synced notes into today.txt.',
+      '[08:26] Marked the morning as intentionally unhurried.',
+    ],
   },
   {
-    title: 'Production-friendly wrapper',
-    description: 'Built-in error handling, structured usage logging, configurable model selection, and optional rate limiting.',
+    id: 'garden',
+    name: '~/garden',
+    title: 'Garden Queue',
+    mood: 'Soft green phosphor · herbs by the sill',
+    accent: 'text-emerald-200',
+    border: 'border-emerald-300/30',
+    prompt: 'harvest --ideas',
+    note: 'Use this pane for collecting fragments before they turn into plans.',
+    tasks: [
+      { label: 'Capture three playful prompts', done: true },
+      { label: 'Refine tonight\'s sketch', done: false },
+      { label: 'Archive old snippets', done: false },
+    ],
+    log: [
+      '[09:02] Seeded notes with an autumn palette.',
+      '[09:09] Opened a scratch buffer for story beats.',
+      '[09:17] Let one good idea stay unfinished on purpose.',
+    ],
   },
   {
-    title: 'Deploy anywhere fast',
-    description: 'Run locally with Express + Vite or ship to Vercel and GitHub Pages using the included deployment guides.',
+    id: 'attic',
+    name: '~/attic',
+    title: 'Attic Archive',
+    mood: 'Dusty plum glow · cedar shelves overhead',
+    accent: 'text-fuchsia-200',
+    border: 'border-fuchsia-300/30',
+    prompt: 'catalog --memories',
+    note: 'A calm archive for old snippets, little rituals, and saved inspiration.',
+    tasks: [
+      { label: 'Tag favorite terminal themes', done: true },
+      { label: 'Pin a cozy command alias', done: true },
+      { label: 'Restore winter playlist links', done: false },
+    ],
+    log: [
+      '[21:03] Indexed wallpaper references.',
+      '[21:14] Restored a trusted shell alias: settle-in.',
+      '[21:26] Archived three gentle UI ideas for later.',
+    ],
   },
 ];
 
-const docsSteps = [
-  'cp .env.example .env',
-  'npm install',
-  'npm run dev',
-  'curl -X POST http://localhost:3001/chat -H "Content-Type: application/json" -d "{\"message\":\"Hello from Mana\"}"',
+const commandOutputs = {
+  'brew --focus': [
+    '> heating workspace… done',
+    '> status: candles lit, notifications muted, cursor relaxed',
+    '> suggestion: pick one tiny thing and let it be enough',
+  ],
+  'harvest --ideas': [
+    '> collecting soft fragments from open buffers',
+    '> queued: moonlit checklist, porch playlist, amber accent tokens',
+    '> suggestion: keep the rough edges; they make the space feel lived in',
+  ],
+  'catalog --memories': [
+    '> attic index mounted successfully',
+    '> restored snapshots: shell ritual.md, evening-notes.txt, lantern-theme.json',
+    '> suggestion: save what still feels warm when reopened',
+  ],
+};
+
+const shellHistory = [
+  '$ settle-in --lights low',
+  '$ tea --refill chamomile',
+  '$ git status',
+  '  on branch cozy-mode',
+  '$ npm run daydream',
 ];
 
-const sampleMessages = [
-  'Summarize why AI wrappers are useful for developer tools.',
-  'Write a playful product tagline for Mana.',
-  'Explain what NVIDIA NIM is in one paragraph.',
-];
-
-const pricingItems = [
-  'Always Free',
-  'No per-seat fees',
-  'No exposed NVIDIA credentials',
-  'Bring your own deployment',
+const statusCards = [
+  ['uptime', '08h 42m'],
+  ['lamps', '2 glowing'],
+  ['playlist', 'lo-fi rain'],
+  ['focus', 'soft sprint'],
 ];
 
 function App() {
-  const [message, setMessage] = useState(sampleMessages[0]);
-  const [response, setResponse] = useState('Your live response will appear here. Connect the server and ask Mana anything.');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [activeRoom, setActiveRoom] = useState(rooms[0].id);
+  const [draft, setDraft] = useState('Design a terminal nook that feels like warm wood, green phosphor, and a rainy evening.');
 
-  const apiBase = useMemo(() => import.meta.env.VITE_API_BASE_URL || '', []);
-
-  const submitMessage = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError('');
-
-    try {
-      const res = await fetch(`${apiBase}/chat`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || 'Mana could not complete the request.');
-      }
-
-      setResponse(data.response);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const room = useMemo(() => rooms.find((entry) => entry.id === activeRoom) ?? rooms[0], [activeRoom]);
+  const output = commandOutputs[room.prompt] ?? [];
+  const completedCount = room.tasks.filter((task) => task.done).length;
 
   return (
-    <div className="relative overflow-hidden text-mana-text">
-      <div className="pointer-events-none absolute inset-0 grid-overlay" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_center,rgba(110,231,255,0.18),transparent_38%)]" />
-
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-6 pb-16 pt-6 sm:px-8 lg:px-10">
-        <header className="glass sticky top-4 z-20 mb-12 flex items-center justify-between rounded-full px-5 py-3 shadow-glow">
-          <div className="flex items-center gap-3">
-            <ManaLogo compact />
-            <span className="text-sm font-semibold uppercase tracking-[0.35em] text-mana-muted">Mana</span>
+    <div className="min-h-screen bg-ink text-stone-100">
+      <div className="ambient ambient-left" />
+      <div className="ambient ambient-right" />
+      <main className="mx-auto flex min-h-screen max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:px-8">
+        <header className="window-panel flex flex-col gap-4 px-5 py-4 lg:flex-row lg:items-center lg:justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.4em] text-stone-400">Cozy TUI Project</p>
+            <h1 className="mt-2 text-3xl font-semibold text-stone-50 sm:text-4xl">Hearth Terminal</h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300 sm:text-base">
+              A single-page, cozy terminal-inspired retreat for planning gentle work, collecting ideas,
+              and enjoying a moody desktop atmosphere.
+            </p>
           </div>
-          <nav className="hidden gap-6 text-sm text-mana-muted md:flex">
-            <a href="#features" className="hover:text-white">Features</a>
-            <a href="#demo" className="hover:text-white">Chat Demo</a>
-            <a href="#quickstart" className="hover:text-white">Quick Start</a>
-            <a href="#docs" className="hover:text-white">Docs</a>
-            <a href="#pricing" className="hover:text-white">Pricing</a>
-          </nav>
-        </header>
 
-        <main className="flex flex-1 flex-col gap-24">
-          <section className="relative grid items-center gap-16 lg:grid-cols-[1.15fr_0.85fr]">
-            <div>
-              <p className="mb-4 inline-flex rounded-full border border-cyan-400/30 bg-cyan-400/10 px-4 py-1 text-sm text-cyan-200 shadow-glow">
-                NVIDIA-powered chat API wrapper for builders
-              </p>
-              <h1 className="max-w-3xl text-5xl font-black leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
-                Mana — Free AI Chat, Powered by NVIDIA
-              </h1>
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-mana-muted sm:text-xl">
-                Ship a polished AI chat API and landing page in minutes. Mana wraps NVIDIA&apos;s chat API,
-                keeps authentication server-side, and gives developers a dead-simple <code>/chat</code> endpoint.
-              </p>
-
-              <div className="mt-8 flex flex-wrap gap-4">
-                <a
-                  href="#demo"
-                  className="rounded-full bg-cyan-400 px-6 py-3 font-semibold text-slate-950 transition hover:scale-[1.02] hover:bg-cyan-300"
-                >
-                  Try Mana
-                </a>
-                <a
-                  href="#docs"
-                  className="rounded-full border border-white/15 bg-white/5 px-6 py-3 font-semibold text-white transition hover:border-cyan-300/50 hover:bg-white/10"
-                >
-                  View Docs
-                </a>
-              </div>
-
-              <div className="mt-10 grid gap-4 sm:grid-cols-3">
-                {features.map((feature) => (
-                  <div key={feature.title} className="glass rounded-3xl p-5 shadow-glow">
-                    <h3 className="text-lg font-semibold text-white">{feature.title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-mana-muted">{feature.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="absolute -left-10 top-10 h-20 w-20 animate-float rounded-3xl border border-cyan-300/20 bg-cyan-400/10 blur-sm" />
-              <div className="absolute right-2 top-0 h-24 w-24 animate-float rounded-full bg-purple-500/20 blur-2xl" />
-              <div className="glass relative overflow-hidden rounded-[2rem] p-8 shadow-glow">
-                <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-cyan-400/10 blur-3xl" />
-                <div className="absolute -bottom-14 left-0 h-32 w-32 rounded-full bg-violet-500/20 blur-3xl" />
-                <div className="relative flex flex-col items-center gap-8">
-                  <ManaLogo />
-                  <div className="grid w-full grid-cols-3 gap-4">
-                    {[...Array(9)].map((_, index) => (
-                      <div
-                        key={index}
-                        className="hex-tile h-16 border border-cyan-300/15 bg-gradient-to-br from-cyan-300/20 to-transparent shadow-glow"
-                        style={{ animationDelay: `${index * 120}ms` }}
-                      />
-                    ))}
-                  </div>
-                  <div className="w-full rounded-3xl border border-white/10 bg-slate-950/60 p-5">
-                    <div className="mb-3 flex items-center justify-between text-xs uppercase tracking-[0.3em] text-mana-muted">
-                      <span>Mana Gateway</span>
-                      <span>Secure /chat</span>
-                    </div>
-                    <div className="space-y-3 text-sm text-mana-muted">
-                      <div className="rounded-2xl bg-white/5 p-3">POST /chat → {`{ message }`}</div>
-                      <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-100">{`{ response: "AI reply" }`}</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="features" className="grid gap-6 md:grid-cols-3">
-            {[
-              ['Logs every request', 'Tracks prompt previews, latency, model, and success/error states for lightweight observability.'],
-              ['Optional rate limiting', 'Protect the free tier with configurable request caps per IP and a friendly JSON error response.'],
-              ['Examples included', 'Use the included Node.js and Python snippets or start with the one-line curl examples.'],
-            ].map(([title, description]) => (
-              <div key={title} className="glass rounded-[2rem] p-6">
-                <div className="mb-4 inline-flex rounded-full border border-cyan-300/20 px-3 py-1 text-xs uppercase tracking-[0.3em] text-cyan-200">
-                  Feature
-                </div>
-                <h2 className="text-2xl font-semibold text-white">{title}</h2>
-                <p className="mt-3 text-mana-muted">{description}</p>
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {statusCards.map(([label, value]) => (
+              <div key={label} className="rounded-2xl border border-stone-700/80 bg-stone-950/70 px-4 py-3">
+                <p className="text-[11px] uppercase tracking-[0.35em] text-stone-500">{label}</p>
+                <p className="mt-2 text-base font-medium text-stone-100">{value}</p>
               </div>
             ))}
-          </section>
+          </div>
+        </header>
 
-          <section id="demo" className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr]">
-            <div className="glass rounded-[2rem] p-8">
-              <h2 className="text-3xl font-semibold text-white">Chat Demo</h2>
-              <p className="mt-3 text-mana-muted">
-                Test your deployed <code>/chat</code> endpoint right from the landing page.
-              </p>
+        <section className="grid flex-1 gap-6 xl:grid-cols-[260px_minmax(0,1fr)_320px]">
+          <aside className="window-panel p-4">
+            <div className="terminal-dots">
+              <span className="dot dot-red" />
+              <span className="dot dot-yellow" />
+              <span className="dot dot-green" />
+            </div>
 
-              <form onSubmit={submitMessage} className="mt-6 space-y-4">
-                <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-cyan-100">Message</span>
-                  <textarea
-                    value={message}
-                    onChange={(event) => setMessage(event.target.value)}
-                    rows={6}
-                    className="w-full rounded-3xl border border-white/10 bg-slate-950/70 px-4 py-3 text-white outline-none ring-0 transition focus:border-cyan-300/60"
-                  />
-                </label>
+            <div className="mt-6">
+              <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Rooms</p>
+              <div className="mt-3 space-y-3">
+                {rooms.map((entry) => (
+                  <button
+                    key={entry.id}
+                    type="button"
+                    onClick={() => setActiveRoom(entry.id)}
+                    className={`w-full rounded-2xl border px-4 py-4 text-left transition ${
+                      entry.id === room.id
+                        ? `bg-stone-900/95 ${entry.border} shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_24px_50px_rgba(0,0,0,0.35)]`
+                        : 'border-stone-800 bg-stone-950/70 hover:border-stone-700 hover:bg-stone-900/80'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="font-medium text-stone-100">{entry.name}</span>
+                      <span className={`text-xs uppercase tracking-[0.3em] ${entry.accent}`}>{entry.id}</span>
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-stone-400">{entry.mood}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                <div className="flex flex-wrap gap-3">
-                  {sampleMessages.map((sample) => (
-                    <button
-                      key={sample}
-                      type="button"
-                      onClick={() => setMessage(sample)}
-                      className="rounded-full border border-white/10 px-4 py-2 text-sm text-mana-muted transition hover:border-cyan-300/50 hover:text-white"
-                    >
-                      {sample}
-                    </button>
-                  ))}
+            <div className="mt-6 rounded-2xl border border-stone-800 bg-stone-950/80 p-4">
+              <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Shell history</p>
+              <div className="mt-3 space-y-2 font-mono text-sm text-stone-300">
+                {shellHistory.map((line) => (
+                  <div key={line}>{line}</div>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          <section className="window-panel overflow-hidden">
+            <div className="border-b border-stone-800/90 px-5 py-4">
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                  <p className={`text-xs uppercase tracking-[0.35em] ${room.accent}`}>{room.mood}</p>
+                  <h2 className="mt-2 text-2xl font-semibold text-stone-50">{room.title}</h2>
+                  <p className="mt-2 max-w-2xl text-sm leading-6 text-stone-300">{room.note}</p>
                 </div>
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="rounded-full bg-white px-5 py-3 font-semibold text-slate-950 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {loading ? 'Contacting NVIDIA…' : 'Send to Mana'}
-                </button>
-              </form>
+                <div className={`rounded-full border px-4 py-2 text-sm ${room.border} bg-stone-950/75 ${room.accent}`}>
+                  {completedCount}/{room.tasks.length} rituals completed
+                </div>
+              </div>
             </div>
 
-            <div className="glass rounded-[2rem] p-8">
-              <div className="flex items-center justify-between">
-                <h3 className="text-2xl font-semibold text-white">Response</h3>
-                <span className="rounded-full border border-cyan-300/20 px-3 py-1 text-xs uppercase tracking-[0.3em] text-cyan-200">
-                  Live JSON
-                </span>
-              </div>
-              <div className="mt-6 rounded-[1.5rem] border border-white/10 bg-slate-950/70 p-5 text-sm leading-7 text-slate-200">
-                <pre className="code-block">{JSON.stringify(error ? { error } : { response }, null, 2)}</pre>
-              </div>
-              <p className="mt-4 text-sm text-mana-muted">
-                Tip: set <code>VITE_API_BASE_URL</code> when hosting the frontend on GitHub Pages so the demo points to your deployed API.
-              </p>
-            </div>
-          </section>
-
-          <section id="quickstart" className="grid gap-8 lg:grid-cols-[1fr_1fr]">
-            <div className="glass rounded-[2rem] p-8">
-              <h2 className="text-3xl font-semibold text-white">Quick Start</h2>
-              <ol className="mt-6 space-y-4 text-mana-muted">
-                {docsSteps.map((step, index) => (
-                  <li key={step} className="flex gap-4 rounded-3xl border border-white/10 bg-white/5 p-4">
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400/15 text-sm font-semibold text-cyan-200">
-                      {index + 1}
+            <div className="grid gap-6 p-5 lg:grid-cols-[1.2fr_0.8fr]">
+              <div className="space-y-6">
+                <div className="terminal-shell min-h-[320px]">
+                  <div className="flex items-center justify-between border-b border-stone-800/80 px-4 py-3">
+                    <span className="font-mono text-sm text-stone-400">{room.prompt}</span>
+                    <span className="rounded-full border border-stone-700 px-3 py-1 text-[11px] uppercase tracking-[0.3em] text-stone-500">
+                      active session
                     </span>
-                    <code className="text-sm text-slate-100">{step}</code>
-                  </li>
-                ))}
-              </ol>
-            </div>
-
-            <div id="docs" className="glass rounded-[2rem] p-8">
-              <h2 className="text-3xl font-semibold text-white">Docs & Examples</h2>
-              <div className="mt-6 space-y-4 text-sm text-mana-muted">
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-200">Node.js</p>
-                  <pre className="code-block text-slate-100">{`fetch('https://your-api.example.com/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: 'Hello from Node.js' })
-}).then((res) => res.json()).then(console.log);`}</pre>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-200">Python</p>
-                  <pre className="code-block text-slate-100">{`import requests
-print(requests.post('https://your-api.example.com/chat', json={'message': 'Hello from Python'}).json())`}</pre>
-                </div>
-                <div className="rounded-3xl border border-white/10 bg-white/5 p-4">
-                  <p className="mb-2 text-xs uppercase tracking-[0.3em] text-cyan-200">One-line curl</p>
-                  <pre className="code-block text-slate-100">{`curl -X POST https://your-api.example.com/chat -H 'Content-Type: application/json' -d '{"message":"Hello Mana"}'`}</pre>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="pricing" className="glass rounded-[2rem] p-8">
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <p className="text-sm uppercase tracking-[0.35em] text-cyan-200">Pricing</p>
-                <h2 className="mt-2 text-4xl font-semibold text-white">Always Free</h2>
-                <p className="mt-3 max-w-2xl text-mana-muted">
-                  Mana is designed as a zero-cost developer gateway you can deploy yourself. Customize the wrapper,
-                  set your own NVIDIA credentials, and keep your app experience frictionless.
-                </p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {pricingItems.map((item) => (
-                  <div key={item} className="rounded-3xl border border-cyan-300/15 bg-cyan-400/10 px-4 py-3 text-sm font-medium text-cyan-100">
-                    {item}
                   </div>
-                ))}
+                  <div className="space-y-4 px-4 py-5 font-mono text-sm leading-7 text-stone-200">
+                    <div className="text-stone-500">$ {room.prompt}</div>
+                    {output.map((line) => (
+                      <div key={line}>{line}</div>
+                    ))}
+                    <div className="mt-6 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-emerald-100">
+                      tip → let the interface breathe; empty space is part of the comfort.
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-3xl border border-stone-800 bg-stone-950/75 p-4">
+                    <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Ritual checklist</p>
+                    <div className="mt-4 space-y-3">
+                      {room.tasks.map((task) => (
+                        <div key={task.label} className="flex items-start gap-3 rounded-2xl border border-stone-800/80 bg-stone-900/70 px-3 py-3">
+                          <span className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border text-xs ${task.done ? 'border-emerald-300/50 bg-emerald-400/15 text-emerald-200' : 'border-stone-700 text-stone-500'}`}>
+                            {task.done ? '✓' : '·'}
+                          </span>
+                          <span className="text-sm leading-6 text-stone-300">{task.label}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-3xl border border-stone-800 bg-stone-950/75 p-4">
+                    <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Session log</p>
+                    <div className="mt-4 space-y-3 font-mono text-sm text-stone-300">
+                      {room.log.map((item) => (
+                        <div key={item} className="rounded-2xl border border-stone-800/80 bg-stone-900/70 px-3 py-3">
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
+
+              <aside className="space-y-6">
+                <div className="rounded-3xl border border-stone-800 bg-stone-950/75 p-4">
+                  <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Scratch buffer</p>
+                  <textarea
+                    value={draft}
+                    onChange={(event) => setDraft(event.target.value)}
+                    className="mt-4 min-h-[220px] w-full resize-none rounded-2xl border border-stone-800 bg-stone-900/80 px-4 py-4 font-mono text-sm leading-7 text-stone-200 outline-none transition focus:border-amber-300/40"
+                  />
+                </div>
+
+                <div className="rounded-3xl border border-stone-800 bg-stone-950/75 p-4">
+                  <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Palette tokens</p>
+                  <div className="mt-4 grid gap-3">
+                    {[
+                      ['amber-glow', '#f59e0b'],
+                      ['moss-phosphor', '#34d399'],
+                      ['plum-shadow', '#c084fc'],
+                      ['woodsmoke', '#1c1917'],
+                    ].map(([name, value]) => (
+                      <div key={name} className="flex items-center justify-between rounded-2xl border border-stone-800/80 bg-stone-900/70 px-3 py-3">
+                        <div className="flex items-center gap-3">
+                          <span className="h-4 w-4 rounded-full border border-white/10" style={{ backgroundColor: value }} />
+                          <span className="font-mono text-sm text-stone-300">{name}</span>
+                        </div>
+                        <span className="font-mono text-xs text-stone-500">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="rounded-3xl border border-stone-800 bg-gradient-to-br from-amber-400/10 via-transparent to-emerald-400/10 p-4">
+                  <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Now playing</p>
+                  <h3 className="mt-3 text-xl font-medium text-stone-100">Rain on the Fire Escape</h3>
+                  <p className="mt-2 text-sm leading-6 text-stone-300">
+                    Hushed keys, kettle steam, and a cassette loop tuned for long evenings.
+                  </p>
+                </div>
+              </aside>
             </div>
           </section>
-        </main>
-      </div>
+
+          <aside className="window-panel p-4">
+            <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Project notes</p>
+            <div className="mt-4 space-y-4">
+              {[
+                'Replace the flashy landing-page feel with a tactile terminal nook.',
+                'Keep everything in one self-contained Vite + React project.',
+                'Favor warm colors, monospace details, and quiet interaction patterns.',
+              ].map((item) => (
+                <div key={item} className="rounded-2xl border border-stone-800 bg-stone-950/80 px-4 py-4 text-sm leading-6 text-stone-300">
+                  {item}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 rounded-2xl border border-stone-800 bg-stone-950/80 p-4">
+              <p className="text-xs uppercase tracking-[0.35em] text-stone-500">Commands</p>
+              <div className="mt-3 space-y-2 font-mono text-sm text-stone-300">
+                <div>npm install</div>
+                <div>npm run dev</div>
+                <div>npm run build</div>
+              </div>
+            </div>
+          </aside>
+        </section>
+      </main>
     </div>
   );
 }
