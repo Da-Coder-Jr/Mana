@@ -1,13 +1,13 @@
-# Hearth Terminal
+# Mana Terminal UI
 
-Hearth Terminal is a cozy TUI-inspired React app built with Vite and Tailwind CSS. It turns the previous glossy landing-page project into a single self-contained workspace that feels like a warm terminal nook: moody panels, session logs, scratch buffers, and soft ritual checklists.
+Mana is now a Warp-inspired terminal workspace concept built with Vite, React, and Tailwind CSS. The app focuses on polished shell chrome, command blocks, theme presets, and split-pane context instead of a generic landing page.
 
-## Features
+## What changed
 
-- **Cozy terminal aesthetic** with warm gradients, paneled windows, and monospace details.
-- **Three themed rooms** that swap the main session view, checklist, and logs.
-- **Interactive scratch buffer** for jotting ideas directly in the UI.
-- **Single-project setup** with only the files needed for the Vite frontend.
+- Reframed the project as a terminal-first UI instead of a cozy dashboard.
+- Added a stronger shell layout with a workspace rail, active session area, and theme studio.
+- Introduced reusable command blocks, prompt anatomy, keyboard flow cards, and preset switching.
+- Tightened the visual system around glass panels, terminal tabs, grid overlays, and accent-driven themes.
 
 ## Getting started
 
@@ -16,13 +16,14 @@ npm install
 npm run dev
 ```
 
-Then open the local Vite URL printed in the terminal.
+Open the local Vite URL printed in the terminal to view the interface.
 
 ## Scripts
 
-- `npm run dev` — start the Vite dev server.
-- `npm run build` — create a production build in `dist/`.
-- `npm run preview` — preview the production build locally.
+- `npm run dev` starts the Vite dev server.
+- `npm run build` creates a production build in `dist/`.
+- `npm run preview` previews the production build locally.
+- `npm run check` runs the build as a lightweight verification step.
 
 ## Project structure
 
